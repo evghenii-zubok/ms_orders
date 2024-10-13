@@ -17,5 +17,4 @@ src/storage/framework
 .fleet
 .idea
 .vscode
-docker/.env
 docker/loc.env

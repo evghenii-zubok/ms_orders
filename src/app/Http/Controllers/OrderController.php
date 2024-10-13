@@ -12,9 +12,11 @@ use App\Jobs\OrderShipped;
 use App\Jobs\OrderCompleted;
 use App\Jobs\OrderCancelled;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 
 class OrderController extends Controller
 {
+
     /**
     * @OA\Post(
     *     path="/api/v1/order",
@@ -185,7 +187,16 @@ class OrderController extends Controller
      */
     public function show(Request $request, int $order) : JsonResponse
     {
-        $item = Order::find($order);
+        if (Cache::has("order_$order")) {
+
+            $item = Cache::get("order_$order");
+
+        } else {
+
+            $item = Cache::remember("order_$order", 60, function () use ($order) {
+                return Order::find($order);
+            });
+        }
 
         if (!$item) {
 
@@ -263,7 +274,6 @@ class OrderController extends Controller
      *     )
      * )
      */
-
     public function update(Request $request, int $order) : JsonResponse
     {
         $item = Order::find($order);
@@ -288,7 +298,19 @@ class OrderController extends Controller
             ], 400);
         }
 
+        // salvo le modifiche dell'ordine
         $item->update(['status' => $request->input('status')]);
+
+        // aggiorno la cache
+        Cache::forget("order_$order");
+
+        $item = Cache::remember("order_$order", 60, function () use ($order) {
+            return Order::find($order);
+        });
+
+        // dall'ordine possiamo risalire all'user_id.
+        // quindi vado a invalidare la sua query della lista ordini.
+        Cache::forget("user_orders_" . $item->user_id);
 
         switch ($item->status) {
 
@@ -344,7 +366,7 @@ class OrderController extends Controller
      *             ),
      *             @OA\Property(
      *                 type="string",
-     *                 default="oDeletedk",
+     *                 default="Deleted",
      *                 property="data",
      *             ),
      *         ),
@@ -376,6 +398,7 @@ class OrderController extends Controller
         }
 
         $item->delete();
+        Cache::forget("order_$order");
 
         return response()->json([
             'status' => true,
@@ -439,9 +462,19 @@ class OrderController extends Controller
      */
     public function getOrdersByUser(Request $request, int $user) : JsonResponse
     {
-        $orders = Order::where('user_id', $user)
-            ->get()
-            ->toArray();
+        if (Cache::has("user_orders_$user")) {
+
+            $orders = Cache::get("user_orders_$user");
+
+        } else {
+            
+            $orders = Cache::remember("user_orders_$user", 60, function () use($user) {
+
+                return Order::where('user_id', $user)
+                    ->get()
+                    ->toArray();
+            });
+        }
 
         return response()->json([
             'status' => true,

@@ -1,0 +1,136 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Docs",
+        "description": "Qualche descrizione",
+        "contact": {
+            "email": "evghenii.zubok@gmail.com"
+        },
+        "version": "0.0.1",
+        "x-logo": {
+            "url": "https://picsum.photos/190/90?text=API Docs"
+        }
+    },
+    "paths": {
+        "/api/documentdb": {
+            "post": {
+                "tags": [
+                    "Order Status"
+                ],
+                "summary": "Create new statuses for orders.",
+                "description": "Create new document.<br><br><br><br><b>TYPE</b> - <i>text</i>, <i>int</i>, <i>numeric</i>, <i>bool</i>, <i>date</i>, <i>datetime</i>, <i>api</i>, <i>files_system</i>, <i>file</i>, ",
+                "operationId": "store",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "key_value": {
+                                        "type": "string",
+                                        "default": "2"
+                                    },
+                                    "key_identifier": {
+                                        "type": "string",
+                                        "default": "profile"
+                                    },
+                                    "parent_key_value": {
+                                        "type": "string",
+                                        "default": "1"
+                                    },
+                                    "parent_key_identifier": {
+                                        "type": "string",
+                                        "default": "customer"
+                                    },
+                                    "readable_name": {
+                                        "type": "string",
+                                        "default": "Profilo amministrazione - Arkema"
+                                    },
+                                    "content": {
+                                        "type": "object",
+                                        "default": "{\"testStr\": {\"type\": \"text\",\"value\":\"Valore in formato testuale\"},\"testInt\":{\"type\":\"int\", \"value\":171}}"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfull operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "description": "Status",
+                                            "type": "boolean",
+                                            "default": "true"
+                                        },
+                                        "message": {
+                                            "description": "Message",
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "id": {
+                                            "description": "Created document id",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "description": "message",
+                                            "type": "string",
+                                            "default": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "405": {
+                        "description": "Validation exception"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Order Status",
+            "description": "Order Status"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "apiKey",
+                "description": "Enter token in format (Bearer <token>)",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    },
+    "security": [
+        {
+            "sanctum": []
+        }
+    ]
+}

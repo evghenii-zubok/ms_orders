@@ -1,0 +1,301 @@
+openapi: 3.0.0
+info:
+  title: 'Orders Management API Docs'
+  description: ''
+  contact:
+    email: evghenii.zubok@gmail.com
+  version: 0.0.1
+  x-logo:
+    url: 'https://picsum.photos/190/90?text=Orders Management API Docs'
+paths:
+  /api/login:
+    post:
+      tags:
+        - Authentication
+      summary: Authentication
+      description: 'Authenticate to receive access token to be used with other Api calls. Use "Authorize" button to get authenticated. Remeber to add "Bearer " suffix to token before using it.'
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                client_id:
+                  type: string
+                  default: 'Bob Lee'
+                client_secret:
+                  type: string
+                  default: MySuperSecretPassword
+              type: object
+      responses:
+        200:
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    description: status
+                    type: boolean
+                    default: 'true'
+                  token:
+                    description: token
+                    type: string
+                    default: 25|iPUe4XPd6zfuNMSzRJQxnKnFh8YsYvK6LF9Xei39
+                type: object
+        400:
+          description: 'Bad request'
+        401:
+          description: 'Missing Authentication'
+        500:
+          description: 'Internal server error'
+  /api/v1/order:
+    post:
+      tags:
+        - 'Orders CRUD'
+      summary: 'Create new order.'
+      operationId: store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                user_id:
+                  type: bigInteger
+                  default: '1'
+                total_amount:
+                  type: decimal
+                  default: '15'
+                product_list:
+                  description: 'Array of products'
+                  type: array
+                  items:
+                    properties:
+                      product_id:
+                        type: integer
+                        default: '1'
+                      ean:
+                        type: string
+                        default: '0123456789123'
+                      name:
+                        type: string
+                        default: Goleador
+                      qty:
+                        type: integer
+                        default: '150'
+                      price:
+                        type: number
+                        format: double
+                        default: '0.1'
+                    type: object
+                  collectionFormat: multi
+              type: object
+      responses:
+        200:
+          description: 'Successfull operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    description: Status
+                    type: boolean
+                    default: 'true'
+                  data:
+                    type: object
+                type: object
+        400:
+          description: 'Bad request'
+        401:
+          description: Unauthorized
+        500:
+          description: 'Internal server error'
+  '/api/v1/order/{id}':
+    get:
+      tags:
+        - 'Orders CRUD'
+      summary: 'Get order by ID'
+      operationId: show
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Order to search ID.'
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Successfull operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    description: Status
+                    type: boolean
+                    default: 'true'
+                  data:
+                    description: 'Requested order in json format'
+                    type: object
+                type: object
+        400:
+          description: 'Bad request'
+        401:
+          description: Unauthorized
+        500:
+          description: 'Internal server error'
+    put:
+      tags:
+        - 'Orders CRUD'
+      summary: 'Update order'
+      description: 'Statuses list for update: Processing, Shipped, Completed, Cancelled'
+      operationId: update
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Order ID.'
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                status:
+                  type: string
+                  default: Shipped
+                  enum:
+                    - Processing
+                    - Shipped
+                    - Completed
+                    - Cancelled
+              type: object
+      responses:
+        200:
+          description: 'Successfull operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    description: Status
+                    type: boolean
+                    default: 'true'
+                  data:
+                    description: 'Updated order in json format'
+                    type: object
+                type: object
+        400:
+          description: 'Bad request'
+        401:
+          description: Unauthorized
+        500:
+          description: 'Internal server error'
+    delete:
+      tags:
+        - 'Orders CRUD'
+      summary: 'Delete order'
+      operationId: destroy
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Order ID'
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Successfull operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    description: Status
+                    type: boolean
+                    default: 'true'
+                  data:
+                    type: string
+                    default: oDeletedk
+                type: object
+        400:
+          description: 'Bad request'
+        401:
+          description: Unauthorized
+        500:
+          description: 'Internal server error'
+  '/api/v1/order/user/{id}':
+    get:
+      tags:
+        - 'Orders CRUD'
+      summary: 'Get order by User ID'
+      operationId: getOrdersByUser
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'User ID'
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Successfull operation'
+          content:
+            application/json:
+              schema:
+                properties:
+                  status:
+                    description: Status
+                    type: boolean
+                    default: 'true'
+                  '':
+                    type: array
+                    items:
+                      properties:
+                        product_id:
+                          type: integer
+                          default: '1'
+                        ean:
+                          type: string
+                          default: '0123456789123'
+                        name:
+                          type: string
+                          default: Goleador
+                        qty:
+                          type: integer
+                          default: '150'
+                        price:
+                          type: number
+                          format: double
+                          default: '0.1'
+                      type: object
+                    collectionFormat: multi
+                type: object
+        400:
+          description: 'Bad request'
+        401:
+          description: Unauthorized
+        500:
+          description: 'Internal server error'
+tags:
+  -
+    name: Authentication
+    description: Authentication
+  -
+    name: 'Orders CRUD'
+    description: 'Orders CRUD'
+components:
+  securitySchemes:
+    sanctum:
+      type: apiKey
+      description: 'Enter token in format (Bearer <token>)'
+      name: Authorization
+      in: header
+security:
+  -
+    sanctum: []

@@ -1,0 +1,57 @@
+services:
+
+  # DB
+  mariadb:
+    container_name: mariadb
+    image: mariadb:latest
+    ports:
+      - "3361:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: ${ROOT_PWD}
+      MARIADB_ROOT_HOST: ${ROOT_HOST}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    networks:
+      YourNetwork:
+
+  # Redis
+  redis: 
+    container_name: redis
+    image: redis:7
+    ports:
+      - 6380:6379
+    command: >
+      /bin/sh -c 'redis-server --requirepass ${REDIS_PASSWORD}'
+    networks:
+      YourNetwork:
+
+  # Webserver + PHP
+  apache-php:
+    container_name: ${COMPOSE_PROJECT_NAME}
+    build:
+      context: ./php
+      args:
+        APP_ENV: ${APP_ENV}
+    ulimits:
+      core:
+        soft: -1
+        hard: -1
+    working_dir: ${DESTINATION_PATH}src
+    volumes:
+      - ${APP_PATH}:${DESTINATION_PATH}
+      - ./webserver/httpd/${APP_ENV}:/etc/apache2/sites-available
+      - ./webserver/httpd/${APP_ENV}:/etc/apache2/sites-enabled
+      - ./php/php.ini:/usr/local/etc/php/conf.d/php.ini
+      - certs:/etc/apache2/certs
+    env_file:
+      - ${APP_ENV}.env
+    networks:
+      YourNetwork:
+
+networks:
+  YourNetwork:
+    external: true
+
+volumes:
+  certs:
+    external: true
